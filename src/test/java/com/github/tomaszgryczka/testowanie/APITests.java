@@ -227,7 +227,7 @@ public class APITests {
 
     @ParameterizedTest
     @MethodSource("generateData")
-    public void should_Return400HttpCode_When_UserNotFound(String login, String email, String firstName, String lastName) throws IOException {
+    public void should_Return404HttpCode_When_UserNotFound(String login, String email, String firstName, String lastName) throws IOException {
         // given
         final String notExistingUser = "notExistingUser";
 
@@ -242,7 +242,7 @@ public class APITests {
 
     @ParameterizedTest
     @MethodSource("generateData")
-    public void should_Return403HttpCode_When_PostRequestIsInvalid(String login, String email, String firstName, String lastName) throws IOException {
+    public void should_Return400HttpCode_When_PostRequestIsInvalid(String login, String email, String firstName, String lastName) throws IOException {
         // given
         final User user = User.builder()
                 .login(login)
@@ -257,10 +257,7 @@ public class APITests {
         request.setEntity(requestEntity);
 
         // when
-        HttpResponse response = HttpClientBuilder.create().build().execute(request);
         HttpResponse forbiddenResponse = HttpClientBuilder.create().build().execute(request);
-
-        cleanUpUser(user);
 
         // then
         assertEquals(400, forbiddenResponse.getStatusLine().getStatusCode());
@@ -268,7 +265,7 @@ public class APITests {
 
     @ParameterizedTest
     @MethodSource("generateData")
-    public void should_Return403HttpCode_When_PutRequestIsInvalid(String login, String email, String firstName, String lastName) throws IOException {
+    public void should_Return400HttpCode_When_PutRequestIsInvalid(String login, String email, String firstName, String lastName) throws IOException {
         // given
         final User user = User.builder()
                 .login(login)
@@ -280,14 +277,11 @@ public class APITests {
                 objectMapper.writeValueAsString(user),
                 ContentType.APPLICATION_JSON);
 
-        HttpPost request = new HttpPost(API_URI + "createuser");
+        HttpPut request = new HttpPut(API_URI + "user");
         request.setEntity(requestEntity);
 
         // when
-        HttpResponse response = HttpClientBuilder.create().build().execute(request);
         HttpResponse forbiddenResponse = HttpClientBuilder.create().build().execute(request);
-
-        cleanUpUser(user);
 
         // then
         assertEquals(400, forbiddenResponse.getStatusLine().getStatusCode());
@@ -299,7 +293,7 @@ public class APITests {
         // given
         final User user = User.builder()
                 .login(login)
-                .email(email)
+                .email(email+"@")
                 .firstName(firstName)
                 .lastName(lastName)
                 .build();
@@ -312,10 +306,7 @@ public class APITests {
         request.setEntity(requestEntity);
 
         // when
-        HttpResponse response = HttpClientBuilder.create().build().execute(request);
         HttpResponse forbiddenResponse = HttpClientBuilder.create().build().execute(request);
-
-        cleanUpUser(user);
 
         // then
         assertEquals(403, forbiddenResponse.getStatusLine().getStatusCode());
